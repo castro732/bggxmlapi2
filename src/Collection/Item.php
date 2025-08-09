@@ -60,4 +60,45 @@ class Item
     {
         return (int)$this->root->numplays;
     }
+
+    private function getStats(): ?\SimpleXMLElement
+    {
+        return $this->root->stats;
+    }
+
+    public function getMinPlayers(): ?int
+    {
+        $stats = $this->getStats();
+        return $stats ? (int) $stats['minplayers'] : null;
+    }
+
+    public function getMaxPlayers(): ?int
+    {
+        $stats = $this->getStats();
+        return $stats ? (int) $stats['maxplayers'] : null;
+    }
+
+    public function getPlayingTime(): ?int
+    {
+        $stats = $this->getStats();
+        return $stats ? (int) $stats['playingtime'] : null;
+    }
+
+    public function getMinPlayTime(): ?int
+    {
+        $stats = $this->getStats();
+        return $stats ? (int) $stats['minplaytime'] : null;
+    }
+
+    public function getMaxPlayTime(): ?int
+    {
+        $stats = $this->getStats();
+        return $stats ? (int) $stats['maxplaytime'] : null;
+    }
+
+    public function getRatingAverage(): ?float
+    {
+        $stats = $this->getStats();
+        return $stats ? round((float) $stats->rating->average['value'], 1) : null;
+    }
 }
