@@ -1,22 +1,25 @@
 <?php
+
 namespace Nataniel\BoardGameGeek;
 
 class Thing
 {
-    const
-        LANGUAGE_LEVEL_NO_NECESSARY_TEXT = 1, // No necessary in-game text
-        LANGUAGE_LEVEL_SOME_NECESSARY_TEXT = 2, // Some necessary text - easily memorized or small crib sheet
-        LANGUAGE_LEVEL_MODERATE_TEXT = 3,       // Moderate in-game text - needs crib sheet or paste ups
-        LANGUAGE_LEVEL_EXTENSIVE_USE = 4,       // Extensive use of text - massive conversion needed to be playable
+    public const LANGUAGE_LEVEL_NO_NECESSARY_TEXT = 1;
+    public const // No necessary in-game text
+        LANGUAGE_LEVEL_SOME_NECESSARY_TEXT = 2;
+    public const // Some necessary text - easily memorized or small crib sheet
+        LANGUAGE_LEVEL_MODERATE_TEXT = 3;
+    public const // Moderate in-game text - needs crib sheet or paste ups
+        LANGUAGE_LEVEL_EXTENSIVE_USE = 4;
+    public const // Extensive use of text - massive conversion needed to be playable
         LANGUAGE_LEVEL_UNPLAYABLE = 5;          // Unplayable in another language
 
-    const
-        TYPE_BOARDGAME = 'boardgame',
-        TYPE_BOARDGAMEEXPANSION = 'boardgameexpansion',
-        TYPE_BOARDGAMEACCESSORY = 'boardgameaccessory',
-        TYPE_VIDEOGAME = 'videogame',
-        TYPE_RPGITEM = 'rpgitem',
-        TYPE_RPGISSUE = 'rpgissue';
+    public const TYPE_BOARDGAME = 'boardgame';
+    public const TYPE_BOARDGAMEEXPANSION = 'boardgameexpansion';
+    public const TYPE_BOARDGAMEACCESSORY = 'boardgameaccessory';
+    public const TYPE_VIDEOGAME = 'videogame';
+    public const TYPE_RPGITEM = 'rpgitem';
+    public const TYPE_RPGISSUE = 'rpgissue';
 
     /** @var \SimpleXMLElement */
     private $root;
@@ -28,12 +31,12 @@ class Thing
 
     public function getId(): int
     {
-        return (int)$this->root['id'];
+        return (int) $this->root['id'];
     }
 
     public function getType(): string
     {
-        return (string)$this->root['type'];
+        return (string) $this->root['type'];
     }
 
     public function isType(string $type): bool
@@ -53,57 +56,57 @@ class Thing
 
     public function getName(): string
     {
-        return (string)$this->root->name['value'];
+        return (string) $this->root->name['value'];
     }
 
     public function getDescription(): string
     {
-        return (string)$this->root->description;
+        return (string) $this->root->description;
     }
 
     public function getImage(): string
     {
-        return (string)$this->root->image;
+        return (string) $this->root->image;
     }
 
     public function getThumbnail(): string
     {
-        return (string)$this->root->thumbnail;
+        return (string) $this->root->thumbnail;
     }
 
     public function getYearPublished(): int
     {
-        return (int)$this->root->yearpublished['value'];
+        return (int) $this->root->yearpublished['value'];
     }
 
     public function getMinPlayers(): int
     {
-        return (int)$this->root->minplayers['value'];
+        return (int) $this->root->minplayers['value'];
     }
 
     public function getMaxPlayers(): int
     {
-        return (int)$this->root->maxplayers['value'];
+        return (int) $this->root->maxplayers['value'];
     }
 
     public function getPlayingTime(): int
     {
-        return (int)$this->root->playingtime['value'];
+        return (int) $this->root->playingtime['value'];
     }
 
     public function getMinPlayTime(): int
     {
-        return (int)$this->root->minplaytime['value'];
+        return (int) $this->root->minplaytime['value'];
     }
 
     public function getMaxPlayTime(): int
     {
-        return (int)$this->root->maxplaytime['value'];
+        return (int) $this->root->maxplaytime['value'];
     }
 
     public function getMinAge(): int
     {
-        return (int)$this->root->minage['value'];
+        return (int) $this->root->minage['value'];
     }
 
     /**
@@ -196,7 +199,7 @@ class Thing
     public function getLinks(): array
     {
         $values = [];
-        $xml = $this->root->xpath("link");
+        $xml = $this->root->xpath('link');
         foreach ($xml as $element) {
             $values[] = Boardgame\Link::factory($element);
         }
@@ -206,30 +209,28 @@ class Thing
 
     public function getRatingAverage(): float
     {
-        return round((float)$this->root->statistics->ratings->average['value'], 1);
+        return round((float) $this->root->statistics->ratings->average['value'], 1);
     }
-    
+
     public function getWeightAverage(): float
     {
-        return round((float)$this->root->statistics->ratings->averageweight['value'], 1);
+        return round((float) $this->root->statistics->ratings->averageweight['value'], 1);
     }
-    
-    
+
     /**
      * @return int
      */
     public function getRank()
     {
-        return (float)$this->root->statistics->ratings->ranks->rank['value'];
+        return (float) $this->root->statistics->ratings->ranks->rank['value'];
     }
-    
 
     public function getAlternateNames(): array
     {
         $names = [];
         $xml = $this->root->xpath("name[@type='alternate']");
         foreach ($xml as $element) {
-            $names[] = (string)$element['value'];
+            $names[] = (string) $element['value'];
         }
 
         return $names;
@@ -239,14 +240,12 @@ class Thing
     {
         $level = null;
         if ($xml = $this->root->xpath("poll[@name='language_dependence']/results/result")) {
-
             $maxVotes = 0;
             foreach ($xml as $element) {
-                if ((int)$element['numvotes'] > $maxVotes) {
-                    $level = (int)$element['level'];
+                if ((int) $element['numvotes'] > $maxVotes) {
+                    $level = (int) $element['level'];
                 }
             }
-
         }
 
         return $level;

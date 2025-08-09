@@ -1,6 +1,9 @@
 <?php
+
 namespace Nataniel\BoardGameGeek;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 /**
  * Class Client
  * @package Nataniel\BoardGameGeek
@@ -9,6 +12,26 @@ namespace Nataniel\BoardGameGeek;
 class Client
 {
     const API_URL = 'https://www.boardgamegeek.com/xmlapi2';
+
+    private string $userAgent = 'BGG XML API Client/1.0';
+    /**
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
+
+    /**
+     * @param LoggerInterface|null $logger
+     */
+    public function __construct(?LoggerInterface $logger = null)
+    {
+        $this->logger = $logger ?? new NullLogger();
+    }
+
+    public function setUserAgent(string $userAgent): self
+    {
+        $this->userAgent = $userAgent;
+        return $this;
+    }
 
     public function getThing(int $id, bool $stats = false): ?Thing
     {
@@ -82,7 +105,7 @@ class Client
     public function getUser(string $name): ?User
     {
         $xml = $this->request('user', [
-            'name' => $name
+            'name' => $name,
         ]);
 
         return !empty($xml['id'])
@@ -98,7 +121,7 @@ class Client
         $xml = $this->request('search', array_filter([
             'query' => $query,
             'type' => $type,
-            'exact' => (int)$exact,
+            'exact' => (int) $exact,
         ]));
 
         return new Search\Query($xml);
@@ -122,9 +145,67 @@ class Client
     protected function request(string $action, array $params = []): \SimpleXMLElement
     {
         $url = sprintf('%s/%s?%s', self::API_URL, $action, http_build_query(array_filter($params)));
-        $xml = simplexml_load_file($url);
+        $this->logger->debug('BGG API request', ['url' => $url, 'action' => $action, 'params' => $params]);
+
+        $startTime = microtime(true);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        $duration = microtime(true) - $startTime;
+
+        $this->logger->debug('BGG API response', [
+            'code' => $httpCode,
+            'duration' => round($duration, 2),
+            'action' => $action,
+            'size' => strlen($response),
+        ]);
+
+        curl_close($ch);
+
+        if ($response === false) {
+            $this->logger->error('BGG API call failed', [
+                'error' => $curlError,
+                'url' => $url,
+                'action' => $action,
+            ]);
+            throw new Exception('API call failed: ' . $curlError);
+        }
+
+        if ($httpCode > 399) {
+            $this->logger->error('BGG API error response', [
+                'code' => $httpCode,
+                'url' => $url,
+                'action' => $action,
+                'response' => substr($response, 0, 1000), // Log first 1000 chars of response
+            ]);
+            throw new Exception('API call failed with HTTP code ' . $httpCode);
+        }
+
+        // Handle 202 status code (request being processed)
+        if ($httpCode === 202) {
+            $this->logger->info('BGG API request queued', [
+                'action' => $action,
+                'params' => $params,
+            ]);
+            // implement retry logic here?
+        }
+
+        $xml = simplexml_load_string($response);
         if (!$xml instanceof \SimpleXMLElement) {
-            throw new Exception('API call failed');
+            $this->logger->error('Failed to parse BGG API response as XML', [
+                'url' => $url,
+                'action' => $action,
+                'response' => substr($response, 0, 1000),
+            ]);
+            throw new Exception('Failed to parse API response as XML');
         }
 
         return $xml;
