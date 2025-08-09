@@ -9,7 +9,7 @@ class ThingTest extends TestCase
     /** @var BoardGameGeek\Thing */
     private $thing;
 
-    public function setUp()
+    public function setUp(): void
     {
         $xml = simplexml_load_file(__DIR__ . '/../files/thing.xml');
         $this->thing = new BoardGameGeek\Thing($xml->item);

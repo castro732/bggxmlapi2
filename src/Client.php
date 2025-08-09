@@ -104,6 +104,8 @@ class Client
 
     public function getUser(string $name): ?User
     {
+        try {
+
         $xml = $this->request('user', [
             'name' => $name,
         ]);
@@ -111,6 +113,10 @@ class Client
         return !empty($xml['id'])
             ? new User($xml)
             : null;
+
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**
