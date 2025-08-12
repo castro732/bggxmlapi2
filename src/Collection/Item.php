@@ -51,9 +51,9 @@ class Item
         return (string)$this->root->thumbnail;
     }
 
-    public function getStatus(): \SimpleXMLElement
+    public function getStatus(): ItemStatus
     {
-        return $this->root->status;
+        return new ItemStatus($this->root->status);
     }
 
     public function getNumPlays(): int
