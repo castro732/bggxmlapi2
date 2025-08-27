@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plays total="1" page="1">
+  <play id="102838714" date="2025-08-19" quantity="1" length="0" incomplete="0" nowinstats="0" location="Home">
+    <item name="Abyss" objecttype="thing" objectid="155987">
+      <subtypes>
+        <subtype value="boardgame"/>
+      </subtypes>
+    </item>
+    <comments>Played with expansions: - [thing=232197]Abyss: Leviathan[/thing]</comments>
+    <players>
+      <player username="andiballone" userid="2919673" name="Andi" startposition="" color="" score="50" new="0" rating="0" win="0"/>
+      <player username="castro732" userid="3090239" name="Jose" startposition="" color="" score="82" new="0" rating="0" win="1"/>
+      <player username="" userid="0" name="Mati" startposition="" color="" score="60" new="0" rating="0" win="0"/>
+      <player username="" userid="0" name="Tom D" startposition="" color="" score="76" new="0" rating="0" win="0"/>
+    </players>
+  </play>
+</plays>
