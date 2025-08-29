@@ -14,6 +14,7 @@ class Client
     const API_URL = 'https://www.boardgamegeek.com/xmlapi2';
 
     private string $userAgent = 'BGG XML API Client/1.0';
+    private ?string $authorization = null;
     /**
      * @var LoggerInterface
      */
@@ -30,6 +31,16 @@ class Client
     public function setUserAgent(string $userAgent): self
     {
         $this->userAgent = $userAgent;
+        return $this;
+    }
+
+    /**
+     * Set the Authorization header value to be sent with all API requests.
+     * Pass null to disable sending the Authorization header.
+     */
+    public function setAuthorization(?string $authorization): self
+    {
+        $this->authorization = $authorization;
         return $this;
     }
 
@@ -176,6 +187,14 @@ class Client
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_ENCODING, 'gzip');
+            // Set User-Agent
+            curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
+            // Set optional Authorization header
+            if ($this->authorization !== null && $this->authorization !== '') {
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Authorization: ' . $this->authorization,
+                ]);
+            }
 
             $response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
