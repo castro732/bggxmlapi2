@@ -2,6 +2,7 @@
 
 namespace Nataniel\BoardGameGeek;
 
+use Nataniel\BoardGameGeek\Search\Query;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 /**
@@ -44,7 +45,10 @@ class Client
         return $this;
     }
 
-    public function getThing(int $id, bool $stats = false): ?Thing
+    /**
+     * @throws Exception
+     */
+    public function getThing(int $id, bool $stats = false, bool $versions = false): ?Thing
     {
         if (empty($id)) {
             return null;
@@ -53,6 +57,7 @@ class Client
         $xml = $this->request('thing', [
             'id' => $id,
             'stats' => $stats,
+            'versions' => $versions,
         ]);
 
         return Factory::fromXml($xml->item);
@@ -60,8 +65,9 @@ class Client
 
     /**
      * @return Thing[]
+     * @throws Exception
      */
-    public function getThings(array $ids, bool $stats = false): array
+    public function getThings(array $ids, bool $stats = false, bool $versions = false): array
     {
         if (empty($ids)) {
             return [];
@@ -70,6 +76,7 @@ class Client
         $xml = $this->request('thing', [
             'id' => join(',', $ids),
             'stats' => $stats,
+            'versions' => $versions,
         ]);
 
         $items = [];
@@ -84,7 +91,9 @@ class Client
      * https://boardgamegeek.com/wiki/page/BGG_XML_API2#toc11
      * TODO: Note that you should check the response status code... if it's 202 (vs. 200) then it indicates BGG has queued
      * your request and you need to keep retrying (hopefully w/some delay between tries) until the status is not 202.
-     * @return Collection|Collection\Item[]
+     * @param array $params
+     * @return Collection
+     * @throws Exception
      */
     public function getCollection(array $params): Collection
     {
@@ -98,6 +107,7 @@ class Client
 
     /**
      * @return HotItem[]
+     * @throws Exception
      */
     public function getHotItems(string $type = Type::BOARDGAME): array
     {
@@ -125,13 +135,17 @@ class Client
             ? new User($xml)
             : null;
 
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return null;
         }
     }
 
     /**
-     * @return Search\Query|Search\Result[]
+     * @param string $query
+     * @param bool $exact
+     * @param string $type
+     * @return Query
+     * @throws Exception
      */
     public function search(string $query, bool $exact = false, string $type = Type::BOARDGAME): Search\Query
     {
@@ -146,6 +160,7 @@ class Client
 
     /**
      * @return Play[]
+     * @throws Exception
      */
     public function getPlays(array $params): array
     {
@@ -159,6 +174,9 @@ class Client
         return $items;
     }
 
+    /**
+     * @throws Exception
+     */
     protected function request(string $action, array $params = []): \SimpleXMLElement
     {
         $url = sprintf('%s/%s?%s', self::API_URL, $action, http_build_query(array_filter($params)));

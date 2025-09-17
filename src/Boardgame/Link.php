@@ -11,7 +11,8 @@ abstract class Link
         TYPE_EXPANSION = 'boardgameexpansion',
         TYPE_DESIGNER = 'boardgamedesigner',
         TYPE_ARTIST = 'boardgameartist',
-        TYPE_PUBLISHER = 'boardgamepublisher';
+        TYPE_PUBLISHER = 'boardgamepublisher',
+        TYPE_VERSION = 'boardgameversion';
 
     /** @var \SimpleXMLElement */
     protected $root;
@@ -55,6 +56,7 @@ abstract class Link
             case self::TYPE_EXPANSION: return new Expansion($xml);
             case self::TYPE_CATEGORY:  return new Category($xml);
             case self::TYPE_MECHANIC:  return new Mechanic($xml);
+            case self::TYPE_VERSION:   return new Version($xml);
             default:
                 throw new Exception(sprintf('Invalid link type: %s.', $xml['type']));
         }

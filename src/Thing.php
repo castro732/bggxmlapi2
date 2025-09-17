@@ -194,6 +194,21 @@ class Thing
     }
 
     /**
+     * @return Boardgame\Version[]
+     */
+    public function getBoardgameVersions(): array
+    {
+        $values = [];
+        // Versions are provided under <versions><item .../></versions> in the API response
+        $xml = $this->root->xpath('versions/item');
+        foreach ($xml as $element) {
+            $values[] = new Boardgame\Version($element);
+        }
+
+        return $values;
+    }
+
+    /**
      * @return Boardgame\Link[]
      */
     public function getLinks(): array
