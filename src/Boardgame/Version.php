@@ -25,4 +25,25 @@ class Version extends Link
 
         return '';
     }
+
+    public function getImage(): ?string
+    {
+        return isset($this->root->image) ? (string) $this->root->image : null;
+    }
+
+    public function getThumbnail(): ?string
+    {
+        return isset($this->root->thumbnail) ? (string) $this->root->thumbnail : null;
+    }
+
+    public function getYearPublished(): int
+    {
+        return (int) $this->root->yearpublished['value'];
+    }
+
+    public function getCanonicalName(): string
+    {
+        return (string) $this->root->canonicalname['value'];
+    }
+
 }
