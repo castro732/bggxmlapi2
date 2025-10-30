@@ -12,7 +12,7 @@ use Psr\Log\NullLogger;
  */
 class Client
 {
-    const API_URL = 'https://www.boardgamegeek.com/xmlapi2';
+    const API_URL = 'https://boardgamegeek.com/xmlapi2';
 
     private string $userAgent = 'BGG XML API Client/1.0';
     private ?string $authorization = null;
