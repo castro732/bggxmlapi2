@@ -109,7 +109,7 @@ class Item
         // Versions are provided under <version><item .../></version> in the API response if called with the version=1 param
         $xml = $this->root->version->item;
 
-        if ($xml !== false && count($xml) > 0) {
+        if (null !== $xml && count($xml) > 0) {
             return new Version($xml);
         }
 
