@@ -1,6 +1,8 @@
 <?php
 namespace Nataniel\BoardGameGeek\Collection;
 
+use Nataniel\BoardGameGeek\Boardgame\Version;
+
 class Item
 {
     /** @var \SimpleXMLElement */
@@ -100,5 +102,17 @@ class Item
     {
         $stats = $this->getStats();
         return $stats ? round((float) $stats->rating->average['value'], 1) : null;
+    }
+
+    public function getVersion(): ?Version
+    {
+        // Versions are provided under <version><item .../></version> in the API response if called with the version=1 param
+        $xml = $this->root->version->item;
+
+        if ($xml !== false && count($xml) > 0) {
+            return new Version($xml);
+        }
+
+        return null;
     }
 }
